@@ -1,5 +1,7 @@
+"use server";
+
 import { auth } from "@/auth";
-import { CustomSession } from "@/types";
+import { CustomSession, Playlist } from "@/types";
 import { redirect } from "next/navigation";
 import SpotifyWebApi from "spotify-web-api-node";
 
@@ -27,7 +29,52 @@ export async function fetchPlaylists() {
     throw new Error("Failed to fetch playlists");
   }
 
-  console.log(playlists.body.items);
-
   return playlists.body.items;
+}
+
+export async function fetchPlaylist(id: string): Promise<Playlist> {
+  console.log("fetching playlist", id);
+  const session = await auth();
+  console.log(session);
+
+  if (!session?.user) {
+    return redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
+  }
+
+  const customSession = session as CustomSession;
+
+  spotifyApi.setRefreshToken(customSession.refreshToken);
+  spotifyApi.setAccessToken(customSession.accessToken);
+  const playlist = await spotifyApi.getPlaylist(id);
+
+  if (playlist.statusCode !== 200) {
+    console.log("playlist", playlist);
+    console.log("body", playlist.body);
+    throw new Error("Failed to fetch playlist");
+  }
+
+  console.log("______________playlist details_____________", playlist.body);
+
+  const result = {
+    id: playlist.body.id,
+    name: playlist.body.name,
+    description: playlist.body.description,
+    images: playlist.body.images,
+    tracks: {
+      items: playlist.body.tracks.items.filter(track => track.track).map((track) => {
+
+        return ({
+          id: track.track!.id,
+          title: track.track!.name,
+          artist: track.track!.artists.map((artist) => artist.name).join(", "),
+          album: track.track!.album.name,
+          time: track.track!.duration_ms,
+          durationMs: track.track!.duration_ms,
+        });
+      }),
+      total: playlist.body.tracks.total,
+    }
+  };
+
+  return result;
 }

@@ -86,7 +86,7 @@ export function PlaylistManager() {
 }
 
 
-function PlusIcon(props) {
+function PlusIcon(props: any) {
   return (
     <svg
       {...props}
@@ -107,7 +107,7 @@ function PlusIcon(props) {
 }
 
 
-function TrashIcon(props) {
+function TrashIcon(props: any) {
   return (
     <svg
       {...props}

@@ -14,7 +14,7 @@ export async function fetchPlaylists() {
   console.log(session);
 
   if (!session?.user) {
-    return redirect("/auth/signin?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Fmanage");
+    return redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
   }
 
   const customSession = session as CustomSession;

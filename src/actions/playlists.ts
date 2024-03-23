@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { CustomSession } from "@/types";
 import { redirect } from "next/navigation";
 import SpotifyWebApi from "spotify-web-api-node";
 
@@ -9,15 +10,18 @@ const spotifyApi = new SpotifyWebApi({
 });
 
 export async function fetchPlaylists() {
-  const session = (await auth()) as CustomSession;
+  const session = await auth();
   console.log(session);
 
   if (!session?.user) {
     return redirect("/auth/signin?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Fmanage");
   }
-  spotifyApi.setRefreshToken(session.refreshToken);
-  spotifyApi.setAccessToken(session.accessToken);
-  const playlists = await spotifyApi.getUserPlaylists("luke.boggs");
+
+  const customSession = session as CustomSession;
+
+  spotifyApi.setRefreshToken(customSession.refreshToken);
+  spotifyApi.setAccessToken(customSession.accessToken);
+  const playlists = await spotifyApi.getUserPlaylists(customSession.accountId);
 
   if (playlists.statusCode !== 200) {
     throw new Error("Failed to fetch playlists");

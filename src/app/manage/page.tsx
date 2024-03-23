@@ -14,7 +14,7 @@ export default async function ManagePage() {
 
   return (
     <main>
-      <PlaylistManager />
+      <PlaylistManager playlists={playlists} />
     </main>
   );
 }

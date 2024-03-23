@@ -2,22 +2,13 @@ import NextAuth from "next-auth";
 import Spotify from "next-auth/providers/spotify";
 
 import type { NextAuthConfig } from "next-auth";
-
-type Session = {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  user: {
-    name: string;
-    email: string;
-  }
-}
+import { CustomJwt, CustomSession } from "./types";
 
 export const config = {
   providers: [Spotify],
   basePath: "/auth",
   callbacks: {
-    jwt: async ({ token, user, account }) => {
+    jwt: async ({ token, account }): Promise<CustomJwt> => {
       if (account && account.access_token) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -25,12 +16,13 @@ export const config = {
         token.accountId = account.providerAccountId;
       }
 
-      return token
+      return token as CustomJwt;
     },
-    session: async ({ session, token, user }) => {
-      return { ...session, accessToken: token.accessToken, refreshToken: token.refreshToken, expiresAt: token.expiresAt, accountId: token.accountId }
-    },
+    session: async ({ session, token }): Promise<CustomSession> => {
+      const customJwt = token as CustomJwt;
+      return { ...session, accessToken: customJwt.accessToken, refreshToken: customJwt.refreshToken, expiresAt: customJwt.expiresAt, accountId: customJwt.accountId };
+    }
   },
-} satisfies NextAuthConfig
+} satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);

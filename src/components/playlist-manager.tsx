@@ -8,7 +8,11 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import Image from "next/image"
 
-export function PlaylistManager() {
+type Props = {
+  playlists: any[]
+}
+
+export function PlaylistManager({ playlists }: Props) {
   return (
     <div className="flex h-screen dark:bg-[#121212] dark:text-white">
       <nav className="w-60 flex flex-col dark:bg-[#000] p-4 space-y-4">
@@ -21,12 +25,16 @@ export function PlaylistManager() {
           </div>
         </div>
         <ScrollArea className="mt-4 space-y-2 flex-1">
-          <Button className="flex items-center space-x-2" variant="ghost">
-            <Avatar>
-              <AvatarImage alt="Playlist" src="/placeholder.svg?height=20&width=20" />
-            </Avatar>
-            <span className="text-sm">house dance mix thursday morning</span>
-          </Button>
+          {
+            playlists.map((playlist) => (
+              <Button key={playlist.id} className="flex items-center space-x-2" variant="ghost">
+                <Avatar>
+                  <AvatarImage alt="Playlist" src={playlist.images[0].url} />
+                </Avatar>
+                <div className="flex text-sm truncate overflow-hidden whitespace-nowrap">{playlist.name}</div>
+              </Button>
+            ))
+          }
         </ScrollArea>
       </nav>
       <main className="flex-1 overflow-y-auto">

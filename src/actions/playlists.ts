@@ -1,23 +1,16 @@
 "use server";
 
-import { auth } from "@/auth";
-import { CustomSession, Playlist } from "@/types";
-import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth";
+import { Playlist } from "@/types";
 
 const SPOTIFY_BASE_URL = "https://api.spotify.com/v1";
 
 export async function fetchPlaylists() {
-  const session = await auth();
-
-  if (!session?.user) {
-    return redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
-  }
-
-  const customSession = session as CustomSession;
+  const session = await getSession();
 
   const response = await fetch(
     `${SPOTIFY_BASE_URL}/me/playlists`,
-    { headers: { 'Authorization': `Bearer ${customSession.accessToken}` } }
+    { headers: { 'Authorization': `Bearer ${session.data.accessToken}` } }
   );
 
   const playlists = await response.json();
@@ -31,17 +24,11 @@ export async function fetchPlaylists() {
 }
 
 export async function fetchPlaylist(id: string): Promise<Playlist> {
-  const session = await auth();
-
-  if (!session?.user) {
-    return redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
-  }
-
-  const customSession = session as CustomSession;
+  const session = await getSession();
 
   const response = await fetch(
     `${SPOTIFY_BASE_URL}/playlists/${id}`,
-    { headers: { 'Authorization': `Bearer ${customSession.accessToken}` } }
+    { headers: { 'Authorization': `Bearer ${session.data.accessToken}` } }
   );
 
   const playlist = await response.json();
@@ -57,17 +44,14 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
     description: playlist.description,
     images: playlist.images,
     tracks: {
-      items: playlist.tracks.items.filter((item: any) => item.track).map((item: any) => {
-
-        return ({
-          id: item.track.id,
-          title: item.track.name,
-          artist: item.track.artists.map((artist: any) => artist.name).join(", "),
-          album: item.track.album.name,
-          time: item.track.duration_ms,
-          durationMs: item.track.duration_ms,
-        });
-      }),
+      items: playlist.tracks.items.filter((item: any) => item.track).map((item: any) => ({
+        id: item.track.id,
+        title: item.track.name,
+        artist: item.track.artists.map((artist: any) => artist.name).join(", "),
+        album: item.track.album.name,
+        time: item.track.duration_ms,
+        durationMs: item.track.duration_ms,
+      })),
       total: playlist.tracks.total,
     }
   };

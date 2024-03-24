@@ -1,14 +1,15 @@
 "use server";
 
 import { fetchPlaylists } from "@/actions/playlists";
-import { auth } from "@/auth";
 import { PlaylistManager } from "@/components/playlist-manager";
-import { redirect } from "next/navigation";
+import { getSession, login } from "@/lib/auth";
 
 export default async function ManagePage() {
-  const session = await auth();
+  const session = await getSession();
 
-  if (!session?.user) redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
+  if (!session?.data?.accessToken) {
+    return login();
+  }
 
   const playlists = await fetchPlaylists();
 

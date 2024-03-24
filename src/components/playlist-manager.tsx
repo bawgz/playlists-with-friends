@@ -131,7 +131,6 @@ export function PlaylistManager({ playlists }: Props) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-
                       {selectedPlaylist.tracks.items?.map((song, index) => (
                         <TableRow key={index + 1}>
                           <TableCell>{index + 1}</TableCell>

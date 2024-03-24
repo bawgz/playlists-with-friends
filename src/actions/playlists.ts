@@ -21,7 +21,6 @@ export async function fetchPlaylists() {
 
   const customSession = session as CustomSession;
 
-  spotifyApi.setRefreshToken(customSession.refreshToken);
   spotifyApi.setAccessToken(customSession.accessToken);
   const playlists = await spotifyApi.getUserPlaylists(customSession.accountId);
 
@@ -43,7 +42,6 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
 
   const customSession = session as CustomSession;
 
-  spotifyApi.setRefreshToken(customSession.refreshToken);
   spotifyApi.setAccessToken(customSession.accessToken);
   const playlist = await spotifyApi.getPlaylist(id);
 

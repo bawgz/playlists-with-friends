@@ -1,19 +1,16 @@
 import { Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
-export type CustomSession = Session & {
+type ExtraAuthFields = {
   accessToken: string;
-  refreshToken: string;
+  refreshToken: string | undefined;
   expiresAt: number;
   accountId: string;
 }
 
-export type CustomJwt = JWT & {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  accountId: string;
-}
+export type CustomSession = Session & ExtraAuthFields;
+
+export type CustomJwt = JWT & ExtraAuthFields;
 
 export type Song = {
   id: string;

@@ -57,11 +57,12 @@ async function refreshAccessToken(token: CustomJwt): Promise<CustomJwt> {
 }
 
 export const config = {
-  providers: [Spotify],
+  providers: [Spotify({
+    authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,playlist-modify-public,playlist-modify-private,playlist-read-private,playlist-read-collaborative,user-library-read"
+  })],
   basePath: "/auth",
   callbacks: {
     jwt: async ({ token, account, user }): Promise<CustomJwt> => {
-      console.log("calling jwt");
       if (account && account.access_token && user) {
 
         return {
@@ -82,7 +83,6 @@ export const config = {
       return refreshAccessToken(customToken);
     },
     session: async ({ session, token }): Promise<CustomSession> => {
-      console.log("calling session");
       const customJwt = token as CustomJwt;
       return { ...session, accessToken: customJwt.accessToken, refreshToken: customJwt.refreshToken, expiresAt: customJwt.expiresAt, accountId: customJwt.accountId };
     }

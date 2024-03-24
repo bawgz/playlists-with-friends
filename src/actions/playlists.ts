@@ -3,17 +3,11 @@
 import { auth } from "@/auth";
 import { CustomSession, Playlist } from "@/types";
 import { redirect } from "next/navigation";
-import SpotifyWebApi from "spotify-web-api-node";
 
-const spotifyApi = new SpotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  redirectUri: process.env.OAUTH_CALLBACK_URL,
-});
+const SPOTIFY_BASE_URL = "https://api.spotify.com/v1";
 
 export async function fetchPlaylists() {
   const session = await auth();
-  console.log(session);
 
   if (!session?.user) {
     return redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
@@ -21,20 +15,25 @@ export async function fetchPlaylists() {
 
   const customSession = session as CustomSession;
 
-  spotifyApi.setAccessToken(customSession.accessToken);
-  const playlists = await spotifyApi.getUserPlaylists(customSession.accountId);
+  const response = await fetch(
+    `${SPOTIFY_BASE_URL}/me/playlists`,
+    { headers: { 'Authorization': `Bearer ${customSession.accessToken}` } }
+  );
 
-  if (playlists.statusCode !== 200) {
+  const playlists = await response.json();
+
+  if (response.status !== 200) {
+    console.error("Failed to fetch playlists", playlists);
     throw new Error("Failed to fetch playlists");
   }
 
-  return playlists.body.items;
+  console.log("Fetched playlists", playlists.total);
+
+  return playlists.items;
 }
 
 export async function fetchPlaylist(id: string): Promise<Playlist> {
-  console.log("fetching playlist", id);
   const session = await auth();
-  console.log(session);
 
   if (!session?.user) {
     return redirect(`/auth/signin?callbackUrl=${process.env.BASE_URL}/manage`);
@@ -42,35 +41,38 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
 
   const customSession = session as CustomSession;
 
-  spotifyApi.setAccessToken(customSession.accessToken);
-  const playlist = await spotifyApi.getPlaylist(id);
+  const response = await fetch(
+    `${SPOTIFY_BASE_URL}/playlists/${id}`,
+    { headers: { 'Authorization': `Bearer ${customSession.accessToken}` } }
+  );
 
-  if (playlist.statusCode !== 200) {
-    console.log("playlist", playlist);
-    console.log("body", playlist.body);
+  const playlist = await response.json();
+
+  if (response.status !== 200) {
+    console.error("Failed to fetch playlist", playlist);
     throw new Error("Failed to fetch playlist");
   }
 
-  console.log("______________playlist details_____________", playlist.body);
+  console.log("Fetched playlist", playlist.tracks.items);
 
   const result = {
-    id: playlist.body.id,
-    name: playlist.body.name,
-    description: playlist.body.description,
-    images: playlist.body.images,
+    id: playlist.id,
+    name: playlist.name,
+    description: playlist.description,
+    images: playlist.images,
     tracks: {
-      items: playlist.body.tracks.items.filter(track => track.track).map((track) => {
+      items: playlist.tracks.items.filter((item: any) => item.track).map((item: any) => {
 
         return ({
-          id: track.track!.id,
-          title: track.track!.name,
-          artist: track.track!.artists.map((artist) => artist.name).join(", "),
-          album: track.track!.album.name,
-          time: track.track!.duration_ms,
-          durationMs: track.track!.duration_ms,
+          id: item.track.id,
+          title: item.track.name,
+          artist: item.track.artists.map((artist: any) => artist.name).join(", "),
+          album: item.track.album.name,
+          time: item.track.duration_ms,
+          durationMs: item.track.duration_ms,
         });
       }),
-      total: playlist.body.tracks.total,
+      total: playlist.tracks.total,
     }
   };
 

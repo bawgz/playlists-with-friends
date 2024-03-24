@@ -65,8 +65,6 @@ export function PlaylistManager({ playlists }: Props) {
     return hoursDisplay + minutesDisplay + ":" + secondsDisplay;
   }
 
-  console.log("I rerender", selectedPlaylistId);
-
   return (
     <div className="flex h-screen dark:bg-[#121212] dark:text-white">
       <nav className="w-60 flex flex-col dark:bg-[#000] p-4 space-y-4">

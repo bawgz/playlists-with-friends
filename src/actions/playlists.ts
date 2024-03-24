@@ -27,8 +27,6 @@ export async function fetchPlaylists() {
     throw new Error("Failed to fetch playlists");
   }
 
-  console.log("Fetched playlists", playlists.total);
-
   return playlists.items;
 }
 
@@ -52,8 +50,6 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
     console.error("Failed to fetch playlist", playlist);
     throw new Error("Failed to fetch playlist");
   }
-
-  console.log("Fetched playlist", playlist.tracks.items);
 
   const result = {
     id: playlist.id,

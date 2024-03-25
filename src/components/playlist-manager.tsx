@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import Image from "next/image"
 import { BasePlaylist, Playlist } from "@/types";
+import { ChangeRequests } from "./change-requests";
 
 type Props = {
   playlist: Playlist | BasePlaylist
@@ -37,7 +38,8 @@ export function PlaylistManager({ playlist }: Props) {
         playlist && (
           <>
             <div className="relative">
-              <Image
+              <PlaylistBanner className="w-full h-72 object-cover" />
+              {/* <Image
                 alt="Playlist cover"
                 className="w-full h-72 object-cover"
                 height="300"
@@ -47,7 +49,7 @@ export function PlaylistManager({ playlist }: Props) {
                   objectFit: "cover",
                 }}
                 width="1360"
-              />
+              /> */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent" />
               <div className="absolute bottom-0 p-8">
                 <h1 className="text-4xl font-bold text-white">{playlist.name}</h1>
@@ -59,6 +61,7 @@ export function PlaylistManager({ playlist }: Props) {
                 )}
               </div>
             </div>
+            {isFullPlaylist(playlist) && <ChangeRequests playlist={playlist} />}
             <div className="px-8 py-4">
               <div className="mt-6">
                 <Table>
@@ -76,7 +79,7 @@ export function PlaylistManager({ playlist }: Props) {
                       isFullPlaylist(playlist) && playlist.tracks.items?.map((song, index) => (
                         <TableRow key={index + 1}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{song.title}</TableCell>
+                          <TableCell>{song.name}</TableCell>
                           <TableCell>{song.artist}</TableCell>
                           <TableCell>{msToTime(song.durationMs)}</TableCell>
                           <TableCell>
@@ -117,6 +120,19 @@ function TrashIcon(props: any) {
       <path d="M3 6h18" />
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </svg>
+  )
+}
+
+function PlaylistBanner(props: any) {
+  return (
+    <svg {...props} height="300" viewBox="0 0 1360 300" width="1360" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="playlist-bg" x1="50%" x2="50%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="orange" />
+        </linearGradient>
+      </defs>
+      <rect fill="url(#playlist-bg)" height="300" width="1360" />
     </svg>
   )
 }

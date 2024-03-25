@@ -1,7 +1,9 @@
 "use server";
 
 import { AuthError, getSession } from "@/lib/auth";
+import { fetchPlaylistMetadata } from "@/lib/db";
 import { BasePlaylist, Playlist } from "@/types";
+import { fetchTracks } from "./tracks";
 
 const SPOTIFY_BASE_URL = "https://api.spotify.com/v1";
 
@@ -46,6 +48,17 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
     throw new Error("Failed to fetch playlist");
   }
 
+  const metadata = await fetchPlaylistMetadata(id);
+
+  if (metadata?.changeRequests && metadata.changeRequests.length > 0) {
+    const trackIds = metadata.changeRequests.map((changeRequest) => changeRequest.trackId);
+    const tracks = await fetchTracks(trackIds);
+    metadata.changeRequests = metadata.changeRequests.map((changeRequest) => ({
+      ...changeRequest,
+      track: tracks.find((track) => track.id === changeRequest.trackId),
+    }));
+  }
+
   const result = {
     id: playlist.id,
     name: playlist.name,
@@ -54,14 +67,15 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
     tracks: {
       items: playlist.tracks.items.filter((item: any) => item.track).map((item: any) => ({
         id: item.track.id,
-        title: item.track.name,
+        name: item.track.name,
         artist: item.track.artists.map((artist: any) => artist.name).join(", "),
         album: item.track.album.name,
         time: item.track.duration_ms,
         durationMs: item.track.duration_ms,
       })),
       total: playlist.tracks.total,
-    }
+    },
+    metadata: metadata,
   };
 
   return result;

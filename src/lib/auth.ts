@@ -68,6 +68,7 @@ export async function createSession(code: string) {
 }
 
 export async function logout() {
+  "use server";
   // Destroy the session
   cookies().set("session", "", { expires: new Date(0) });
 }

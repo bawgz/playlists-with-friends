@@ -5,9 +5,9 @@ type ExtraAuthFields = {
   accountId: string;
 }
 
-export type Song = {
+export type Track = {
   id: string;
-  title: string;
+  name: string;
   artist: string;
   album: string;
   durationMs: number;
@@ -25,6 +25,22 @@ export type BasePlaylist = {
 
 export type Playlist = BasePlaylist & {
   tracks: {
-    items: Song[] | null;
-  }
+    items: Track[] | null;
+  },
+  metadata: PlaylistMetadata | null;
+}
+
+export type PlaylistMetadata = {
+  changeRequests: {
+    userId: string,
+    trackId: string,
+    track: Track | null | undefined,
+    changeType: "add" | "remove",
+    status: "pending" | "approved" | "rejected",
+    createdAt: string,
+    votes: {
+      userId: string,
+      vote: "approve" | "reject"
+    }[] | null
+  }[]
 }

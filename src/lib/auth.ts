@@ -72,18 +72,24 @@ export async function logout() {
   cookies().set("session", "", { expires: new Date(0) });
 }
 
-export async function getSession() {
-  const session = cookies().get("session")?.value;
+export async function getSession(request: NextRequest | null = null) {
+  let session = cookies().get("session")?.value;
+
+  if (request) {
+    session = request.cookies.get("session")?.value;
+  }
+
   if (!session) return null;
   return await decrypt(session);
 }
 
 export async function updateSession(request: NextRequest) {
-  const session = request.cookies.get("session")?.value;
-  if (!session) return;
-
   // Refresh the session so it doesn't expire
-  let parsed = await decrypt(session);
+  let parsed = await getSession(request);
+
+  if (!parsed) {
+    return;
+  }
 
   if (parsed.data.expiresAt < Date.now()) {
     parsed = await refreshAccessToken(parsed);

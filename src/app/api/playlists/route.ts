@@ -1,32 +1,24 @@
-// import { auth } from "@/auth";
-// import { CustomSession } from "@/types";
+import { getSession } from "@/lib/auth";
+import { NextRequest } from "next/server";
 
-// const SPOTIFY_BASE_URL = "https://api.spotify.com/v1";
+const SPOTIFY_BASE_URL = "https://api.spotify.com/v1";
 
-// export const GET = auth(async (request) => {
+export async function GET(request: NextRequest): Promise<Response> {
+  const auth = await getSession(request);
 
-//   console.log("____________________REQUEST____________________");
-//   console.log(request.headers);
+  console.log("auth", auth);
 
-//   const auth = request.auth as CustomSession;
-//   console.log("___________________AUTH________________________");
-//   console.log(auth);
+  const response = await fetch(
+    `${SPOTIFY_BASE_URL}/me/playlists`,
+    { headers: { 'Authorization': `Bearer ${auth.data.accessToken}` } }
+  );
 
-//   if (!auth?.accessToken) {
-//     return Response.json({ error: "Access token not provided" }, { status: 401 });
-//   }
+  const playlists = await response.json();
 
-//   const response = await fetch(
-//     `${SPOTIFY_BASE_URL}/me/playlists`,
-//     { headers: { 'Authorization': `Bearer ${auth.accessToken}` } }
-//   );
+  if (response.status !== 200) {
+    console.error("Failed to fetch playlists", playlists);
+    return Response.json({ error: "Failed to fetch playlists" }, { status: 500 });
+  }
 
-//   const playlists = await response.json();
-
-//   if (response.status !== 200) {
-//     console.error("Failed to fetch playlists", playlists);
-//     return Response.json({ error: "Failed to fetch playlists" }, { status: 500 });
-//   }
-
-//   return Response.json(playlists.items);
-// });
+  return Response.json(playlists.items);
+};

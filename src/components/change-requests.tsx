@@ -26,7 +26,7 @@ export function ChangeRequests({ playlist }: Props) {
               <TableHead className="max-w-96">Track</TableHead>
               <TableHead>Requester</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead className="w-10">Approve</TableHead>
+              <TableHead>Approve</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -42,6 +42,7 @@ export function ChangeRequests({ playlist }: Props) {
                       height="100"
                       title={`${request.track?.name} - ${request.track?.artist}`}
                       src={`https://open.spotify.com/embed/track/${request.track?.id}?utm_source=oembed`}
+                      className="max-w-96"
                     >
                     </iframe>
                   </TableCell>
@@ -60,45 +61,6 @@ export function ChangeRequests({ playlist }: Props) {
             }
           </TableBody>
         </Table>
-        <ul className="p-4 space-y-2">
-          <li className="border-b">
-            <div className="grid grid-cols-4 gap-4 items-center">
-              <span>Track</span>
-              <span>Request</span>
-              <span>Requested</span>
-              <span>Actions</span>
-            </div>
-          </li>
-          {
-            playlist.metadata.changeRequests.map((request, index) => (
-              <li key={index} className="border-b">
-                <div className="grid grid-cols-4 gap-4 items-center">
-                  {/* <a className="underline cursor-pointer" href={`https://open.spotify.com/track/${request.track?.id}`} target="_blank">
-                      <q>{request.track?.name}</q> by {request.track?.artist}
-                    </a> */}
-                  <iframe
-                    width="100%"
-                    height="100"
-                    title={`${request.track?.name} - ${request.track?.artist}`}
-                    style={{ borderRadius: "12px" }}
-                    src={`https://open.spotify.com/embed/track/${request.track?.id}?utm_source=oembed`}
-                  >
-                  </iframe>
-                  <span className="text-center">Luke requested to {request.changeType}</span>
-                  <span className="text-center">{new Date(Date.parse(request.createdAt)).toLocaleString()}</span>
-                  <div className="flex items-center space-x-2 justify-center">
-                    <button className="text-green-500">
-                      <CheckIcon className="h-5 w-5" />
-                    </button>
-                    <button className="text-red-500">
-                      <XIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))
-          }
-        </ul>
       </ScrollArea>
     </div>
   )

@@ -14,13 +14,11 @@ export default async function ManagePage() {
   }
 
   try {
-    // filtering this for testing purposes...
-    // TODO: new collection to select the playlists you want to manage through this app
     const playlists = await fetchPlaylists();
 
     return (
       <main>
-        <ManagementView playlists={playlists.filter(p => p.id === "09Kpz6QL3YidOwurAzxLag")} />
+        <ManagementView playlists={playlists} />
       </main>
     );
   } catch (error) {

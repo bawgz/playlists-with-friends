@@ -28,7 +28,9 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
 
   const response = await fetch(
     `${SPOTIFY_BASE_URL}/playlists/${id}`,
-    { headers: { 'Authorization': `Bearer ${session.data.accessToken}` } }
+    {
+      headers: { 'Authorization': `Bearer ${session.data.accessToken}` },
+    }
   );
 
   const playlist = await response.json();

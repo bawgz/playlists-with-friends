@@ -5,53 +5,15 @@
  * @see https://v0.dev/t/NW5MslhUPSm
  */
 import { Button } from "@/components/ui/button"
-import { AvatarImage, Avatar } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import Image from "next/image"
-import { useEffect, useState } from "react";
-import { fetchPlaylist } from "@/actions/playlists";
 import { Playlist } from "@/types";
 
 type Props = {
-  playlists: any[]
+  playlist: Playlist
 }
 
-export function PlaylistManager({ playlists }: Props) {
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(playlists.length > 0 ? playlists[0] : null);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState(playlists.length > 0 ? playlists[0].id : null);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-
-    (async () => {
-      if (!selectedPlaylistId) {
-        return;
-      }
-
-      const details = await fetchPlaylist(selectedPlaylistId);
-
-      if (!signal.aborted) {
-        setSelectedPlaylist(details as Playlist);
-      }
-    }
-    )();
-    return () => {
-      // Cancel the request when the component unmounts
-      abortController.abort();
-    };
-
-  }, [selectedPlaylistId]);
-
-  function selectPlaylist(id: any): void {
-    setSelectedPlaylistId(id);
-    setSelectedPlaylist(null);
-  }
-
-  function generatePlaylistListClassName(id: string): string {
-    return `flex items-center space-x-2 cursor-pointer ${selectedPlaylistId === id ? "bg-black/20 dark:bg-white/20 hover:bg-black/30 dark:hover:bg-white/30" : "hover:bg-black/10 dark:hover:bg-white/10"}`;
-  }
+export function PlaylistManager({ playlist }: Props) {
 
   function msToTime(durationMs: number): string {
     const seconds = Math.floor((durationMs / 1000) % 60),
@@ -66,113 +28,68 @@ export function PlaylistManager({ playlists }: Props) {
   }
 
   return (
-    <div className="flex h-screen dark:bg-[#121212] dark:text-white">
-      <nav className="w-60 flex flex-col dark:bg-[#000] p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wider">Your Playlists</h2>
-          <div className="flex space-x-1">
-            <Button variant="ghost">
-              <PlusIcon className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-        <ScrollArea className="mt-4 space-y-2 flex-1">
-          {
-            playlists.map((playlist, index) => (
-              <div key={index} className={generatePlaylistListClassName(playlist.id)} onClick={() => selectPlaylist(playlist.id)}>
-                <Avatar>
-                  <AvatarImage alt="Playlist" src={playlist.images[playlist.images.length - 1].url} />
-                </Avatar>
-                <div className="flex text-sm truncate overflow-hidden whitespace-nowrap">{playlist.name}</div>
+    <main className="flex-1 overflow-y-auto">
+      {
+        playlist && (
+          <>
+            <div className="relative">
+              <Image
+                alt="Playlist cover"
+                className="w-full h-72 object-cover"
+                height="300"
+                src={playlist.images[0].url}
+                style={{
+                  aspectRatio: "1360/300",
+                  objectFit: "cover",
+                }}
+                width="1360"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent" />
+              <div className="absolute bottom-0 p-8">
+                <h1 className="text-4xl font-bold text-white">{playlist.name}</h1>
+                <p className="text-sm mt-2 text-white">
+                  {playlist.description}
+                </p>
+                {playlist.tracks?.total > 0 && (
+                  <p className="text-xs mt-1 text-gray-300">{playlist.tracks.total} songs</p>
+                )}
               </div>
-            ))
-          }
-        </ScrollArea>
-      </nav>
-      <main className="flex-1 overflow-y-auto">
-        {
-          selectedPlaylist && (
-            <>
-              <div className="relative">
-                <Image
-                  alt="Playlist cover"
-                  className="w-full h-72 object-cover"
-                  height="300"
-                  src={selectedPlaylist.images[0].url}
-                  style={{
-                    aspectRatio: "1360/300",
-                    objectFit: "cover",
-                  }}
-                  width="1360"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#121212] to-transparent" />
-                <div className="absolute bottom-0 p-8">
-                  <h1 className="text-4xl font-bold text-white">{selectedPlaylist.name}</h1>
-                  <p className="text-sm mt-2 text-white">
-                    {selectedPlaylist.description}
-                  </p>
-                  {selectedPlaylist.tracks?.total > 0 && (
-                    <p className="text-xs mt-1 text-gray-300">{selectedPlaylist.tracks.total} songs</p>
-                  )}
-                </div>
-              </div>
-              <div className="px-8 py-4">
-                <div className="mt-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12">#</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Album</TableHead>
-                        <TableHead className="w-24">Time</TableHead>
-                        <TableHead className="w-12" />
+            </div>
+            <div className="px-8 py-4">
+              <div className="mt-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Album</TableHead>
+                      <TableHead className="w-24">Time</TableHead>
+                      <TableHead className="w-12" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {playlist.tracks.items?.map((song, index) => (
+                      <TableRow key={index + 1}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{song.title}</TableCell>
+                        <TableCell>{song.artist}</TableCell>
+                        <TableCell>{msToTime(song.durationMs)}</TableCell>
+                        <TableCell>
+                          <Button className="hover:bg-[#121212]" variant="ghost">
+                            <TrashIcon className="w-6 h-6" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedPlaylist.tracks.items?.map((song, index) => (
-                        <TableRow key={index + 1}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{song.title}</TableCell>
-                          <TableCell>{song.artist}</TableCell>
-                          <TableCell>{msToTime(song.durationMs)}</TableCell>
-                          <TableCell>
-                            <Button className="hover:bg-[#121212]" variant="ghost">
-                              <TrashIcon className="w-6 h-6" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+                    ))}
+                  </TableBody>
 
-                  </Table>
-                </div>
+                </Table>
               </div>
-            </>
-          )
-        }
-      </main>
-    </div>
-  )
-}
-
-
-function PlusIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
+            </div>
+          </>
+        )
+      }
+    </main>
   )
 }
 

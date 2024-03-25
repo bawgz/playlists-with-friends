@@ -1,7 +1,7 @@
 "use server";
 
 import { fetchPlaylists } from "@/actions/playlists";
-import { PlaylistManager } from "@/components/playlist-manager";
+import { ManagementView } from "@/components/management-view";
 import { getSession, login } from "@/lib/auth";
 
 export default async function ManagePage() {
@@ -15,7 +15,7 @@ export default async function ManagePage() {
 
   return (
     <main>
-      <PlaylistManager playlists={playlists} />
+      <ManagementView playlists={playlists} />
     </main>
   );
 }

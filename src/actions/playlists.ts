@@ -1,11 +1,11 @@
 "use server";
 
-import { getSession } from "@/lib/auth";
-import { Playlist } from "@/types";
+import { AuthError, getSession } from "@/lib/auth";
+import { BasePlaylist, Playlist } from "@/types";
 
 const SPOTIFY_BASE_URL = "https://api.spotify.com/v1";
 
-export async function fetchPlaylists() {
+export async function fetchPlaylists(): Promise<BasePlaylist[]> {
   const session = await getSession();
 
   const response = await fetch(
@@ -17,6 +17,9 @@ export async function fetchPlaylists() {
 
   if (response.status !== 200) {
     console.error("Failed to fetch playlists", playlists);
+    if (response.status === 401) {
+      throw new AuthError("Unauthorized");
+    }
     throw new Error("Failed to fetch playlists");
   }
 
@@ -37,6 +40,9 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
 
   if (response.status !== 200) {
     console.error("Failed to fetch playlist", playlist);
+    if (response.status === 401) {
+      throw new AuthError("Unauthorized");
+    }
     throw new Error("Failed to fetch playlist");
   }
 

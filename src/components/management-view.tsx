@@ -6,16 +6,16 @@
  */
 import { useEffect, useState } from "react";
 import { fetchPlaylist } from "@/actions/playlists";
-import { Playlist } from "@/types";
+import { BasePlaylist, Playlist } from "@/types";
 import PlaylistList from "./playlist-list";
 import { PlaylistManager } from "./playlist-manager";
 
 type Props = {
-  playlists: any[]
+  playlists: BasePlaylist[]
 }
 
 export function ManagementView({ playlists }: Props) {
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(playlists.length > 0 ? playlists[0] : null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | BasePlaylist | null>(playlists.length > 0 ? playlists[0] : null);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState(playlists.length > 0 ? playlists[0].id : null);
 
   useEffect(() => {
@@ -35,6 +35,13 @@ export function ManagementView({ playlists }: Props) {
         }
       } catch (error) {
         console.error("Failed to fetch playlist details", error);
+
+        // TODO: how to log user out here? redirect to a logout page?
+        // if (error instanceof AuthError) {
+        //   return logout();
+        // }
+
+        throw error;
       }
     }
     )();

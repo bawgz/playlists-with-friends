@@ -7,10 +7,10 @@
 import { Button } from "@/components/ui/button"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import Image from "next/image"
-import { Playlist } from "@/types";
+import { BasePlaylist, Playlist } from "@/types";
 
 type Props = {
-  playlist: Playlist
+  playlist: Playlist | BasePlaylist
 }
 
 export function PlaylistManager({ playlist }: Props) {
@@ -25,6 +25,10 @@ export function PlaylistManager({ playlist }: Props) {
     const secondsDisplay = seconds < 10 ? "0" + seconds : seconds;
 
     return hoursDisplay + minutesDisplay + ":" + secondsDisplay;
+  }
+
+  function isFullPlaylist(playlist: Playlist | BasePlaylist): playlist is Playlist {
+    return (playlist as Playlist).tracks !== undefined;
   }
 
   return (
@@ -68,19 +72,21 @@ export function PlaylistManager({ playlist }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {playlist.tracks.items?.map((song, index) => (
-                      <TableRow key={index + 1}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{song.title}</TableCell>
-                        <TableCell>{song.artist}</TableCell>
-                        <TableCell>{msToTime(song.durationMs)}</TableCell>
-                        <TableCell>
-                          <Button className="hover:bg-[#121212]" variant="ghost">
-                            <TrashIcon className="w-6 h-6" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {
+                      isFullPlaylist(playlist) && playlist.tracks.items?.map((song, index) => (
+                        <TableRow key={index + 1}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{song.title}</TableCell>
+                          <TableCell>{song.artist}</TableCell>
+                          <TableCell>{msToTime(song.durationMs)}</TableCell>
+                          <TableCell>
+                            <Button className="hover:bg-[#121212]" variant="ghost">
+                              <TrashIcon className="w-6 h-6" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    }
                   </TableBody>
 
                 </Table>

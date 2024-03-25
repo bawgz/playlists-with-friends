@@ -3,11 +3,12 @@
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Avatar, AvatarImage } from "./ui/avatar";
+import { BasePlaylist } from "@/types";
 
 type Props = {
-  playlists: any[],
+  playlists: BasePlaylist[],
   selectPlaylistFn: (id: any) => void,
-  selectedPlaylistId: string,
+  selectedPlaylistId: string | null,
 }
 
 export default function PlaylistList({ playlists, selectedPlaylistId, selectPlaylistFn }: Props) {

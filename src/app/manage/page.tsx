@@ -2,7 +2,7 @@
 
 import { fetchPlaylists } from "@/actions/playlists";
 import { ManagementView } from "@/components/management-view";
-import { getSession, login } from "@/lib/auth";
+import { AuthError, getSession, login, logout } from "@/lib/auth";
 
 export default async function ManagePage() {
   const session = await getSession();
@@ -11,11 +11,19 @@ export default async function ManagePage() {
     return login();
   }
 
-  const playlists = await fetchPlaylists();
+  try {
+    const playlists = await fetchPlaylists();
 
-  return (
-    <main>
-      <ManagementView playlists={playlists} />
-    </main>
-  );
+    return (
+      <main>
+        <ManagementView playlists={playlists} />
+      </main>
+    );
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return logout();
+    }
+
+    throw error;
+  }
 }

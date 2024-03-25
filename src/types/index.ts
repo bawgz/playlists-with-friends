@@ -13,13 +13,18 @@ export type Song = {
   durationMs: number;
 }
 
-export type Playlist = {
+export type BasePlaylist = {
   id: string;
   name: string;
   description: string | null;
   images: { url: string }[];
   tracks: {
     total: number;
+  }
+}
+
+export type Playlist = BasePlaylist & {
+  tracks: {
     items: Song[] | null;
   }
 }

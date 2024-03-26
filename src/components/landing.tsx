@@ -6,6 +6,7 @@
  */
 import Link from "next/link"
 import Image from "next/image"
+import img from "../../public/out-1.png"
 
 export async function Landing() {
   return (
@@ -26,7 +27,8 @@ export async function Landing() {
             alt="Image"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
             height="450"
-            src="/placeholder.svg"
+            src={img}
+            placeholder="blur"
             width="800"
           />
         </div>
